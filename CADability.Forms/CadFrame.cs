@@ -159,7 +159,7 @@ namespace CADability.Forms
                 openFileDialog.RestoreDirectory = true;
             }
 
-            Substitutes.DialogResult res = (Substitutes.DialogResult)openFileDialog.ShowDialog(Application.OpenForms[0]);
+            Substitutes.DialogResult res = (Substitutes.DialogResult)openFileDialog.ShowDialog(/*Application.OpenForms[0]*/);
             if (res == Substitutes.DialogResult.OK)
             {
                 filterIndex = openFileDialog.FilterIndex;
