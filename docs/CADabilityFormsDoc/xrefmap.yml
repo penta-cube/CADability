@@ -3537,12 +3537,6 @@ references:
   isSpec: "True"
   fullName: CADability.Forms.PaintToOpenGL.GetHashCode
   nameWithType: PaintToOpenGL.GetHashCode
-- uid: CADability.Forms.PaintToOpenGL.Init(System.Drawing.Bitmap)
-  name: Init(Bitmap)
-  href: api/CADability.Forms.PaintToOpenGL.html#CADability_Forms_PaintToOpenGL_Init_System_Drawing_Bitmap_
-  commentId: M:CADability.Forms.PaintToOpenGL.Init(System.Drawing.Bitmap)
-  fullName: CADability.Forms.PaintToOpenGL.Init(System.Drawing.Bitmap)
-  nameWithType: PaintToOpenGL.Init(Bitmap)
 - uid: CADability.Forms.PaintToOpenGL.Init(System.IntPtr,System.Int32,System.Int32,System.Boolean)
   name: Init(IntPtr, Int32, Int32, Boolean)
   href: api/CADability.Forms.PaintToOpenGL.html#CADability_Forms_PaintToOpenGL_Init_System_IntPtr_System_Int32_System_Int32_System_Boolean_
