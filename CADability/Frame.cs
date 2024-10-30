@@ -2407,6 +2407,59 @@ namespace CADability
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
         }
+
+        public void OpenStepFile(string fileName)
+        {
+            var filetype = "stp";
+
+            if (string.IsNullOrEmpty(fileName))
+            {
+                var filter = StringTable.GetString("File.STEP.Filter");
+                var filterIndex = lastFileType;
+                if (UIService.ShowOpenFileDlg("MenuId.File.Open", StringTable.GetString("MenuId.File.Open"), filter, ref filterIndex, out fileName) == Substitutes.DialogResult.OK)
+                {
+                    ReadAndCreateProject();
+                }
+            }
+            else
+            {
+                try
+                {
+                    ReadAndCreateProject();
+                }
+                catch (FileNotFoundException fnf)
+                {
+                    UIService.ShowMessageBox(StringTable.GetFormattedString("Error.FileNotFound", fileName), StringTable.GetString("Errormessage.Import"), MessageBoxButtons.OK);
+                }
+            }
+
+            // since a project may use alot of memory, this is a good place to free that memory, which was used by the previous project
+            System.GC.Collect();
+            System.GC.WaitForPendingFinalizers();
+
+            void ReadAndCreateProject()
+            {
+                var newProject = Project.ReadFromFile(fileName, filetype);
+                if (newProject != null)
+                {
+                    Project = newProject;
+
+                    // if it was no a CADability file, zoom to extent
+                    ModelView mv = FirstModelView;
+                    // and show the first NodelView
+                    if (mv != null)
+                    {
+                        int tc0 = System.Environment.TickCount;
+                        mv.ZoomTotal(1.1);
+                        int tc1 = System.Environment.TickCount - tc0;
+                        System.Diagnostics.Trace.WriteLine("Zoom Total: " + tc1.ToString());
+
+                        MRUFiles.AddPath(fileName, filetype);
+                        UpdateMRUMenu(MRUFiles.GetMRUFiles());
+                    }
+                }
+            }
+        }
         /// <summary>
         /// Generates a new project, saves the current project if necessary and sets the
         /// new project as the current project.
