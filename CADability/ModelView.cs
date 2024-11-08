@@ -427,7 +427,7 @@ namespace CADability
             zAxisUp = true;
             allowDrag = Settings.GlobalSettings.GetBoolValue("AllowDrag", true);
             allowDrop = Settings.GlobalSettings.GetBoolValue("AllowDrop", true);
-            allowContextMenu = Settings.GlobalSettings.GetBoolValue("AllowContextMenu", true);
+            allowContextMenu = Settings.GlobalSettings.GetBoolValue("AllowContextMenu", false);
             displayPrecision = -1.0; // automatisch
             additionalExtent = BoundingCube.EmptyBoundingCube;
         }
