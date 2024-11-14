@@ -16,6 +16,8 @@ using DragEventArgs = CADability.Substitutes.DragEventArgs;
 using Action = CADability.Actions.Action;
 using CADability.Substitutes;
 using CADability.Attribute;
+using System.Runtime.InteropServices.ComTypes;
+using netDxf.Tables;
 
 namespace CADability
 {
@@ -2408,55 +2410,53 @@ namespace CADability
             System.GC.WaitForPendingFinalizers();
         }
 
-        public void OpenStepFile(string fileName)
+        public void OpenStepFileWithDialog()
         {
+            var fileName = string.Empty;
             var filetype = "stp";
 
-            if (string.IsNullOrEmpty(fileName))
+            var filter = StringTable.GetString("File.STEP.Filter");
+            var filterIndex = lastFileType;
+            if (UIService.ShowOpenFileDlg("MenuId.File.Open", StringTable.GetString("MenuId.File.Open"), filter, ref filterIndex, out fileName) == Substitutes.DialogResult.OK)
             {
-                var filter = StringTable.GetString("File.STEP.Filter");
-                var filterIndex = lastFileType;
-                if (UIService.ShowOpenFileDlg("MenuId.File.Open", StringTable.GetString("MenuId.File.Open"), filter, ref filterIndex, out fileName) == Substitutes.DialogResult.OK)
-                {
-                    ReadAndCreateProject();
-                }
-            }
-            else
-            {
-                try
-                {
-                    ReadAndCreateProject();
-                }
-                catch (FileNotFoundException fnf)
-                {
-                    UIService.ShowMessageBox(StringTable.GetFormattedString("Error.FileNotFound", fileName), StringTable.GetString("Errormessage.Import"), MessageBoxButtons.OK);
-                }
+                ReadAndCreateProject(fileName, filetype);
             }
 
             // since a project may use alot of memory, this is a good place to free that memory, which was used by the previous project
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
+        }
 
-            void ReadAndCreateProject()
+        public void OpenStepFileWithPath(string fileName)
+        {
+            var filetype = "stp";
+
+            ReadAndCreateProject(fileName, filetype);
+
+            // since a project may use alot of memory, this is a good place to free that memory, which was used by the previous project
+            System.GC.Collect();
+            System.GC.WaitForPendingFinalizers();
+        }
+
+        private void ReadAndCreateProject(string fileName, string filetype)
+        {
+            var newProject = Project.ReadFromFile(fileName, filetype);
+            if (newProject != null)
             {
-                var newProject = Project.ReadFromFile(fileName, filetype);
-                if (newProject != null)
+                Project = newProject;
+
+                // if it was no a CADability file, zoom to extent
+                ModelView mv = FirstModelView;
+                // and show the first NodelView
+                if (mv != null)
                 {
-                    Project = newProject;
+                    int tc0 = System.Environment.TickCount;
+                    mv.ZoomTotal(1.1);
+                    int tc1 = System.Environment.TickCount - tc0;
+                    System.Diagnostics.Trace.WriteLine("Zoom Total: " + tc1.ToString());
 
-                    // if it was no a CADability file, zoom to extent
-                    ModelView mv = FirstModelView;
-                    // and show the first NodelView
-                    if (mv != null)
-                    {
-                        int tc0 = System.Environment.TickCount;
-                        mv.ZoomTotal(1.1);
-                        int tc1 = System.Environment.TickCount - tc0;
-                        System.Diagnostics.Trace.WriteLine("Zoom Total: " + tc1.ToString());
-
-                        MRUFiles.AddPath(fileName, filetype);
-                        UpdateMRUMenu(MRUFiles.GetMRUFiles());
-                    }
+                    MRUFiles.AddPath(fileName, filetype);
+                    UpdateMRUMenu(MRUFiles.GetMRUFiles());
                 }
             }
         }
@@ -2483,6 +2483,19 @@ namespace CADability
 
             return true;
         }
+        public bool GenerateNewProjectWithoutSave()
+        {
+            Project newproject = Project.CreateSimpleProject();
+            Project = newproject;
+            ModelView mv = FirstModelView;
+            if (mv != null)
+            {
+                mv.ZoomTotal(1.1);
+            }
+
+            return true;
+        }
+
         private void OnAppAbout()
         {   // don't want to use windows forms
             //Form about = new Form();
