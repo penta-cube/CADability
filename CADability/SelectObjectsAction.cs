@@ -1666,7 +1666,8 @@ namespace CADability.Actions
                         {
                             ClickOnSelectedObjectEvent(selectedObjects[0], vw, e, ref done);
                         }
-                        canStartDrag = vw.AllowDrag;
+                        // canStartDrag = vw.AllowDrag;
+                        canStartDrag = false;
                     }
                 }
                 else
