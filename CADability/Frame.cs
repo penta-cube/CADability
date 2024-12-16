@@ -1051,7 +1051,7 @@ namespace CADability
                     return true;
                 case "MenuId.Projection.Direction.FromTop":
                     // (ActiveView as ModelView).ProjectedModel.SetViewDirection(-GeoVector.ZAxis, false);
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(-GeoVector.ZAxis, GeoVector.YAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -1064,7 +1064,7 @@ namespace CADability
                     }
                     return true;
                 case "MenuId.Projection.Direction.FromFront":
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(GeoVector.YAxis, GeoVector.ZAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -1077,7 +1077,7 @@ namespace CADability
                     }
                     return true;
                 case "MenuId.Projection.Direction.FromBack":
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(-GeoVector.YAxis, GeoVector.ZAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -1090,7 +1090,7 @@ namespace CADability
                     }
                     return true;
                 case "MenuId.Projection.Direction.FromLeft":
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(GeoVector.XAxis, GeoVector.ZAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -1103,7 +1103,7 @@ namespace CADability
                     }
                     return true;
                 case "MenuId.Projection.Direction.FromRight":
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(-GeoVector.XAxis, GeoVector.ZAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -1117,7 +1117,7 @@ namespace CADability
                     }
                     return true;
                 case "MenuId.Projection.Direction.FromBottom":
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(GeoVector.ZAxis, GeoVector.YAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -1132,7 +1132,7 @@ namespace CADability
                 case "MenuId.Projection.Direction.Orthogonal":
                     GeoVector dir = -ActiveView.Projection.DrawingPlane.Normal;
                     dir.Norm();
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(dir, GeoVector.ZAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -1147,7 +1147,7 @@ namespace CADability
                 case "MenuId.Projection.Direction.Isometric":
                     GeoVector iso = new GeoVector(-1, -1, -1);
                     iso.Norm();
-                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", true))
+                    if (Settings.GlobalSettings.GetBoolValue("ModelView.AnimateViewChange", false))
                     {
                         ActiveView.Projection.SetDirectionAnimated(iso, GeoVector.ZAxis, ActiveView.Model, Settings.GlobalSettings.GetBoolValue("ModelView.AutoZoomTotal", false),
                             ActiveView.Canvas, fixPoint);
@@ -2415,7 +2415,7 @@ namespace CADability
             var fileName = string.Empty;
             var filetype = "stp";
 
-            var filter = StringTable.GetString("File.STEP.Filter");
+            var filter = "STEP files (*.step,*.stp, *.STEP, *.STP)|*.step;*.stp;*.STEP;*.STP"; // StringTable.GetString("File.STEP.Filter");
             var filterIndex = lastFileType;
             if (UIService.ShowOpenFileDlg("MenuId.File.Open", StringTable.GetString("MenuId.File.Open"), filter, ref filterIndex, out fileName) == Substitutes.DialogResult.OK)
             {
