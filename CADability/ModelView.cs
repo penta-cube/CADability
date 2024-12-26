@@ -962,7 +962,7 @@ namespace CADability
             if (MouseMove != null) if (MouseMove(this, ref e)) return;
             bool doScroll = e.Button == MouseButtons.Middle;
             bool doDirection = false;
-            if (e.Button == MouseButtons.Middle && (Frame.UIService.ModifierKeys & Keys.Control) != 0)
+            if (e.Button == MouseButtons.Left && (Frame.UIService.ModifierKeys & Keys.Control) != 0)
             {
                 doScroll = false;
                 doDirection = true;
@@ -1122,6 +1122,105 @@ namespace CADability
                 canvas.Frame.ActionStack.OnMouseMove(e, this);
             }
         }
+
+        public void RotateVertical(int angle)
+        {
+            RotateView(0, angle);
+        }
+
+        public void RotateHorizontal(int angle)
+        {
+            RotateView(angle, 0);
+        }
+
+        private void RotateView(int HOffset, int VOffset)
+        {
+            if (VOffset != 0 || HOffset != 0)
+            {
+                if (distance == 0.0)
+                {
+                    GeoVector haxis = Projection.InverseProjection * GeoVector.XAxis;
+                    GeoVector vaxis = Projection.InverseProjection * GeoVector.YAxis;
+                    ModOp mh = ModOp.Rotate(vaxis, SweepAngle.Deg(HOffset));
+                    ModOp mv = ModOp.Rotate(haxis, SweepAngle.Deg(VOffset));
+
+                    ModOp project = Projection.UnscaledProjection * mv * mh;
+                    // jetzt noch die Z-Achse einrichten. Die kann senkrecht nach oben oder unten
+                    // zeigen. Wenn die Z-Achse genau auf den Betrachter zeigt oder genau von ihm weg,
+                    // dann wird keine Anpassung vorgenommen, weils sonst zu sehr wackelt
+                    GeoVector z = project * GeoVector.ZAxis;
+                    if (ZAxisUp)
+                    {
+                        const double mindeg = 0.05; // nur etwas aufrichten, aber in jedem Durchlauf
+                        if (z.y < -0.1)
+                        {   // Z-Achse soll nach unten zeigen
+                            Angle a = new Angle(-GeoVector2D.YAxis, new GeoVector2D(z.x, z.y));
+                            if (a.Radian > mindeg) a.Radian = mindeg;
+                            if (a.Radian < -mindeg) a.Radian = -mindeg;
+                            if (z.x < 0)
+                            {
+                                project = project * ModOp.Rotate(vaxis ^ haxis, -a.Radian);
+                            }
+                            else
+                            {
+                                project = project * ModOp.Rotate(vaxis ^ haxis, a.Radian);
+                            }
+                            z = project * GeoVector.ZAxis;
+                        }
+                        else if (z.y > 0.1)
+                        {
+                            Angle a = new Angle(GeoVector2D.YAxis, new GeoVector2D(z.x, z.y));
+                            if (a.Radian > mindeg) a.Radian = mindeg;
+                            if (a.Radian < -mindeg) a.Radian = -mindeg;
+                            if (z.x < 0)
+                            {
+                                project = project * ModOp.Rotate(vaxis ^ haxis, a.Radian);
+                            }
+                            else
+                            {
+                                project = project * ModOp.Rotate(vaxis ^ haxis, -a.Radian);
+                            }
+                            z = project * GeoVector.ZAxis;
+                        }
+                    }
+                    // Fixpunkt bestimmen
+                    Point clcenter = canvas.ClientRectangle.Location;
+                    clcenter.X += canvas.ClientRectangle.Width / 2;
+                    clcenter.Y += canvas.ClientRectangle.Height / 2;
+
+                    if (fixPointValid)
+                        SetViewDirection(project, fixPoint, true);
+                    else
+                    {
+                        SetViewDirection(project, Projection.UnProject(clcenter), true);
+                    }
+                }
+                else
+                {
+                    GeoVector haxis = Projection.horizontalAxis;
+                    GeoVector vaxis = Projection.verticalAxis;
+                    ModOp mh = ModOp.Rotate(vaxis, SweepAngle.Deg(-HOffset));
+                    ModOp mv = ModOp.Rotate(haxis, SweepAngle.Deg(-VOffset));
+                    if (Precision.SameDirection(Projection.Direction, GeoVector.ZAxis, false))
+                    {
+                        mh = ModOp.Identity;
+                        mv = ModOp.Rotate(GeoVector.XAxis, SweepAngle.Deg(-VOffset / 5.0));
+                    }
+                    GeoVector viewDirection = mv * mh * Projection.Direction;
+
+                    GeoPoint fromHere;
+                    if (fixPointValid) fromHere = fixPoint - distance * viewDirection;
+                    else fromHere = GeoPoint.Origin - distance * viewDirection;
+                    ProjectedModel.SetViewDirection(fromHere, viewDirection, fixPoint, false);
+
+                    ForceInvalidateAll();
+                    canvas?.Invalidate();
+                }
+
+                projectedModelNeedsRecalc = true;
+            }
+        }
+
         void IView.OnMouseUp(MouseEventArgs eIn)
         {
             MouseEventArgs e = eIn;
