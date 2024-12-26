@@ -1741,6 +1741,39 @@ namespace CADability
             if ((ActiveView is ICommandHandler) && (ActiveView as ICommandHandler).OnCommand(MenuId)) return true;
             return false; // could not handle this command
         }
+
+        public void RotateUp()
+        {
+            if (ActiveView is ModelView modelView)
+            {
+                modelView.RotateVertical(-90);
+            }
+        }
+
+        public void RotateDown()
+        {
+            if (ActiveView is ModelView modelView)
+            {
+                modelView.RotateVertical(90);
+            }
+        }
+
+        public void RotateRight()
+        {
+            if (ActiveView is ModelView modelView)
+            {
+                modelView.RotateHorizontal(90);
+            }
+        }
+
+        public void RotateLeft()
+        {
+            if (ActiveView is ModelView modelView)
+            {
+                modelView.RotateHorizontal(-90);
+            }
+        }
+
         bool checkModelExist()
         {
             return modelViews.Count > 0;
